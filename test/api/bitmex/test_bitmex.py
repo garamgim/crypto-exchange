@@ -39,3 +39,51 @@ def test_get_orders_failure(mock_get):
     mock_get.assert_called_once()
     assert response.status_code == 400
     assert response.json() == {"detail": mock_error_response}
+
+
+@patch("app.api.bitmex.main.requests.post")
+def test_place_orders_success(mock_post):
+    mock_success_response = {
+        "status": "success",
+    }
+
+    # Set up the mock to return a successful response
+    mock_post.return_value.status_code = 200
+    mock_post.return_value.json.return_value = mock_success_response
+
+    # Call the endpoint with mocked order request data
+    response = client.post("/bitmex/orders", json={
+        "symbol": "XBTUSD",
+        "price": 50000,
+        "orderQty": 1,
+        "side": "Buy"
+    })
+
+    # Assert the mock API was called correctly
+    mock_post.assert_called_once()
+    assert response.status_code == 200
+    assert response.json() == mock_success_response
+
+
+@patch("app.api.bitmex.main.requests.post")
+def test_place_orders_failure(mock_post):
+    mock_error_response = {
+        "error": "Invalid ID"
+    }
+
+    # Set up the mock to return an error response
+    mock_post.return_value.status_code = 400
+    mock_post.return_value.json.return_value = mock_error_response
+
+    # Call the endpoint with mocked order request data
+    response = client.post("/bitmex/orders", json={
+        "symbol": "XBTUSD",
+        "price": 50000,
+        "orderQty": 1,
+        "side": "Buy"
+    })
+
+    # Assert the mock API was called correctly
+    mock_post.assert_called_once()
+    assert response.status_code == 400
+    assert response.json() == {"detail": mock_error_response}
