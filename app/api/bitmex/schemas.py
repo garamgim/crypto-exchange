@@ -107,3 +107,42 @@ class AmendRequest(BaseModel):
     stopPx: Optional[float] = Field(None, description="Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders. Use a price below the current price for stop-sell orders and buy-if-touched orders.")
     pegOffsetValue: Optional[float] = Field(None, description="Optional trailing offset from the current price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders; use a negative offset for stop-sell orders and buy-if-touched orders.")
     text: Optional[str] = Field(None, description="Optional amend annotation (e.g., 'Adjust skew').")
+
+
+class CancelRequest(BaseModel):
+    orderID: str = Field(..., description="Order ID(s).")
+    origClOrdID: Optional[str] = Field(None, description="Client Order ID(s). See POST /order.")
+    text: Optional[str] = Field(None, description="Optional cancellation annotation. e.g. 'Spread Exceeded'.")
+
+
+class CancelAllRequest(BaseModel):
+    all: bool = Field(
+        False,
+        description="Whether to cancel all orders for all accounts."
+    )
+    targetAccountIds: Optional[str] = Field(
+        None,
+        description="AccountIds to cancel all orders, must be a paired account with main user. Also accepts wildcard, [*], this will cancel all orders for all accounts the authenticated user has order write permissions for."
+    )
+    symbol: Optional[str] = Field(
+        None,
+        description="Optional symbol. If provided, only cancels orders for that symbol."
+    )
+    filter: Optional[dict] = Field(
+        None,
+        description="Optional filter for cancellation. Use to only cancel some orders, e.g. {'side': 'Buy'}."
+    )
+    text: Optional[str] = Field(
+        None,
+        description="Optional cancellation annotation. e.g. 'Spread Exceeded'."
+    )
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "targetAccountIds": ["12345", "67890"],
+                "symbol": "BTCUSD",
+                "filter": {"side": "Buy"},
+                "text": "Spread Exceeded",
+            }
+        }
