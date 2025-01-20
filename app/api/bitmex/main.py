@@ -12,7 +12,8 @@ from .enums import OrderState
 from .schemas import *
 
 router = APIRouter(
-    prefix="/bitmex"
+    prefix="/bitmex",
+    tags=["Bitmex"]
 )
 
 
