@@ -95,3 +95,15 @@ class OrderRequest(BaseModel):
     text: Optional[str] = Field(
         None, description="Optional order annotation (e.g., 'Take profit')."
     )
+
+
+class AmendRequest(BaseModel):
+    orderID: str = Field(..., description="Order ID")
+    origClOrdID: Optional[str] = Field(None, description="Client Order ID. See POST /order.")
+    clOrdID: Optional[str] = Field(None, description="Optional new Client Order ID, requires origClOrdId.")
+    orderQty: Optional[float] = Field(None, description="Optional order quantity in units of the instrument (i.e., contracts, for spot it is the base currency in minor currency (e.g. XBt quantity for XBT)).")
+    leavesQty: Optional[float] = Field(None, description="Optional leaves quantity in units of the instrument (i.e., contracts, for spot it is the base currency in minor currency (e.g. XBt quantity for XBT)). Useful for amending partially filled orders.")
+    price: Optional[float] = Field(None, description="Optional limit price for 'Limit', 'StopLimit', and 'LimitIfTouched' orders.")
+    stopPx: Optional[float] = Field(None, description="Optional trigger price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders. Use a price below the current price for stop-sell orders and buy-if-touched orders.")
+    pegOffsetValue: Optional[float] = Field(None, description="Optional trailing offset from the current price for 'Stop', 'StopLimit', 'MarketIfTouched', and 'LimitIfTouched' orders; use a negative offset for stop-sell orders and buy-if-touched orders.")
+    text: Optional[str] = Field(None, description="Optional amend annotation (e.g., 'Adjust skew').")

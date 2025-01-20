@@ -1,5 +1,4 @@
 import time
-from encodings.iso8859_4 import decoding_table
 from typing import List
 
 import requests
@@ -63,7 +62,7 @@ async def get_orders(
 
 
 @router.post("/orders")
-async def place_orders(request: OrderRequest):
+async def place_order(request: OrderRequest):
     # Setting the expiry time for the API request signature (5 seconds from the current time)
     expires = int(round(time.time()) + 5)
 
@@ -80,6 +79,35 @@ async def place_orders(request: OrderRequest):
     }
 
     response = requests.post(url, data=request, headers=headers)
+    if response.status_code == 200:
+        return JSONResponse(status_code=response.status_code, content=response.json())
+    else:
+        raise HTTPException(status_code=response.status_code, detail=response.json())
+
+@router.put("/orders")
+async def amend_order(
+        request: AmendRequest
+):
+    # Ensure the request body contains at least one valid parameter
+    if not request:
+        raise HTTPException(status_code=400, detail="At least one parameter (quantity, price, or others) must be provided.")
+
+    # Setting the expiry time for the API request signature (5 seconds from the current time)
+    expires = int(round(time.time()) + 5)
+
+    url = BITMEX_BASE_URL + f"/order"
+
+    # JSON format used for the request should match the one used for generating the signature
+    request = to_valid_json(request)
+
+    # Headers for the API request including the expiry time, API key, and signature
+    headers = {
+        "api-expires": str(expires),
+        "api-key": BITMEX_API_KEY,
+        "api-signature": generate_signature(BITMEX_SECRET_KEY, url=url, verb='PUT', nonce=expires, data=request)
+    }
+
+    response = requests.put(url, data=request, headers=headers)
     if response.status_code == 200:
         return JSONResponse(status_code=response.status_code, content=response.json())
     else:
